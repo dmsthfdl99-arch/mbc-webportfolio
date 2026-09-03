@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 3. 부드러운 스크롤 이동
+   // 3. 부드러운 스크롤 이동
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     anchor.addEventListener("click", function (e) {
       const href = this.getAttribute("href");
@@ -70,13 +70,31 @@ document.addEventListener("DOMContentLoaded", () => {
       const target = document.querySelector(href);
       if (target) {
         e.preventDefault();
-        const headerHeight = header.offsetHeight || 80;
-        const targetPosition =
-          target.getBoundingClientRect().top + window.scrollY - headerHeight;
 
-        window.scrollTo({
-          top: targetPosition,
-          behavior: "smooth",
+        // 헤더 메뉴에서 스킬/아트워크로 이동할 땐, 스크롤 전에 해당 탭부터 활성화
+        let filterToActivate = null;
+        if (href === "#skills") filterToActivate = "skills";
+        if (href === "#artworkGallery") filterToActivate = "artwork";
+
+        if (filterToActivate) {
+          const matchingTab = document.querySelector(
+            `.project-nav .tab-btn[data-filter="${filterToActivate}"]`,
+          );
+          if (matchingTab) matchingTab.click();
+        }
+
+        // 탭 활성화로 레이아웃이 바뀐 뒤 위치를 다시 계산해서 스크롤
+        requestAnimationFrame(() => {
+          const headerHeight = header.offsetHeight || 80;
+          const targetPosition =
+            target.getBoundingClientRect().top + window.scrollY - headerHeight;
+
+          // 탭 전환으로 레이아웃이 크게 바뀐 경우(스킬/아트워크)는
+          // smooth 스크롤이 여러 번 끊겨 보이므로 즉시 이동
+          window.scrollTo({
+            top: targetPosition,
+            behavior: filterToActivate ? "auto" : "smooth",
+          });
         });
       }
     });
@@ -118,16 +136,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // 스킬 섹션: MY SKILL 탭을 눌렀을 때만 노출 (ALL 포함 다른 탭에서는 숨김)
-    if (skillsSection) {
-      if (filter === "skills") {
+       if (skillsSection) {
+      if (filter === "all" || filter === "skills") {
         showItem(skillsSection);
       } else {
         hideItem(skillsSection);
       }
     }
-    
+
     if (artworkGallerySection) {
-      if (filter === "artwork") {
+      if (filter === "all" || filter === "artwork") {
         artworkGallerySection.classList.remove("hidden");
       } else {
         artworkGallerySection.classList.add("hidden");

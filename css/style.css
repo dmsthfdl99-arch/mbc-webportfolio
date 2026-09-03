@@ -802,7 +802,7 @@ ol {
   display: grid;
   grid-template-columns: 1fr 1.6fr;
   gap: 50px;
-  align-items: start;
+  align-items: center;
 }
 
 .project-details {
